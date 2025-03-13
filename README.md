@@ -28,9 +28,9 @@ Add this entry to your `claude_desktop_config.json` (on Mac, you'll find it at `
 ```json
 {
   "mcpServers": {
-    "mcp-openai": {
+    "mcp-openai-planner": {
       "command": "npx",
-      "args": ["-y", "@mzxrai/mcp-openai@latest"],
+      "args": ["-y", "@edwardtang1024/mcp-openai-planner@latest"],
       "env": {
         "OPENAI_API_KEY": "your-api-key-here (get one from https://platform.openai.com/api-keys)"
       }

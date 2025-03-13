@@ -1,15 +1,15 @@
 {
-  "name": "@edwardtang/mcp-openai-planner",
+  "name": "@edwardtang1024/mcp-openai-planner",
   "version": "0.1.1",
   "description": "MCP server for planning with with OpenAI o1 models",
   "license": "MIT",
   "author": "edwardtang",
-  "homepage": "https://github.com/edwardtang/mcp-openai-planner",
+  "homepage": "https://github.com/edwardtang1024/mcp-openai-planner",
   "repository": {
     "type": "git",
-    "url": "https://github.com/EdwardTang/mcp-openai-planner.git"
+    "url": "https://github.com/edwardtang1024/mcp-openai-planner.git"
   },
-  "bugs": "https://github.com/edwardtang/mcp-openai-planner/issues",
+  "bugs": "https://github.com/edwardtang1024/mcp-openai-planner/issues",
   "type": "module",
   "bin": {
     "mcp-server-webresearch": "dist/index.js"
