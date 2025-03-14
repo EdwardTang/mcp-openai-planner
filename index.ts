@@ -66,6 +66,14 @@ const DEFAULT_DEVELOPER_CONTENT = [
     }
 ];
 
+// Define default planner content for the multi-agent system
+const DEFAULT_PLANNER_CONTENT = [
+    {
+        "text": "# Planner Agent\n\nYou are the Planner in a multi-agent collaboration system. Your role is to provide high-level guidance, analysis, and task breakdown. You analyze the Executor's work and provide strategic direction.\n\n## Your Responsibilities\n\n- Break down complex problems into manageable tasks\n- Define clear success criteria for the project\n- Analyze technical challenges and propose solutions\n- Review the Executor's progress and provide guidance\n- Make critical decisions about project direction\n- Use advanced reasoning models (o1, o1-preview) for deep analysis\n\n## When Responding to the Executor\n\nWhen the Executor reports progress or asks for guidance, analyze their request carefully and respond with clear instructions in the `Next Steps and Action Items` section. Use this format:\n\n```\n[PLANNER RESPONSE]\nAnalysis: {Your assessment of the current situation}\nDecision: {Your decision about how to proceed}\nNext Steps:\n1. {Clear, actionable instruction}\n2. {Another instruction}\n...\nConsiderations: {Important factors the Executor should keep in mind}\n```\n\nThink deeply about the problem. Prioritize agility but don't over-engineer. Foresee challenges and derisk earlier. If opportunity sizing or probing experiments can reduce risk with low cost, instruct the Executor to do them.",
+        "type": "text"
+    }
+];
+
 // Define available tools
 const TOOLS: Tool[] = [
     {
@@ -291,9 +299,32 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<{
                         if (msg.role === 'system') {
                             return { role: 'system', content: msg.content } as ChatCompletionSystemMessageParam;
                         } else if (msg.role === 'user') {
-                            return { role: 'user', content: msg.content } as ChatCompletionUserMessageParam;
+                            // When user sends a message to openai_plan, they're always acting as an executor
+                            // seeking guidance from the planner (o1)
+                            const executorRequestWrapper = `
+[EXECUTOR REQUEST]
+Task: ${msg.content.toLowerCase().includes('task:') ? msg.content : `Project planning/implementation`}
+Status: ${msg.content.toLowerCase().includes('status:') ? 
+    msg.content.substring(msg.content.toLowerCase().indexOf('status:') + 7).split('\n')[0].trim() : 
+    `Seeking guidance`}
+Question: ${msg.content.replace(/@o1/g, '').replace(/@planner/g, '').trim()}
+
+Please analyze this request and provide guidance on the next steps. Think like a founder. Prioritize agility and don't over-engineer. Think deeply. Try to foresee challenges and derisk earlier.
+`;
+                            return { 
+                                role: 'user', 
+                                content: executorRequestWrapper 
+                            } as ChatCompletionUserMessageParam;
                         } else if (msg.role === 'assistant') {
-                            return { role: 'assistant', content: msg.content } as ChatCompletionAssistantMessageParam;
+                            // When assistant responds in openai_plan, it's always as the planner
+                            const formattedContent = [
+                                ...DEFAULT_PLANNER_CONTENT,
+                                { type: "text", text: msg.content }
+                            ];
+                            return { 
+                                role: 'assistant', 
+                                content: formattedContent 
+                            } as ChatCompletionAssistantMessageParam;
                         }
                     } else if (Array.isArray(msg.content)) {
                         // Array of content parts
@@ -303,9 +334,31 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<{
                         }));
                         
                         if (msg.role === 'user') {
-                            return { role: 'user', content: contentParts } as ChatCompletionUserMessageParam;
+                            // All user messages to openai_plan are from executor to planner
+                            const firstPart = msg.content[0];
+                            const firstPartText = firstPart && 'text' in firstPart ? firstPart.text : '';
+                            
+                            const modifiedContent = [...contentParts];
+                            modifiedContent[0] = {
+                                type: 'text',
+                                text: `
+[EXECUTOR REQUEST]
+Task: ${firstPartText.toLowerCase().includes('task:') ? firstPartText : `Project planning/implementation`}
+Status: ${firstPartText.toLowerCase().includes('status:') ? 
+    firstPartText.substring(firstPartText.toLowerCase().indexOf('status:') + 7).split('\n')[0].trim() : 
+    `Seeking guidance`}
+Question: ${firstPartText.replace(/@o1/g, '').replace(/@planner/g, '').trim()}
+
+Please analyze this request and provide guidance on the next steps. Think like a founder. Prioritize agility and don't over-engineer. Think deeply. Try to foresee challenges and derisk earlier.
+`
+                            };
+                            return { role: 'user', content: modifiedContent } as ChatCompletionUserMessageParam;
                         } else if (msg.role === 'assistant') {
-                            return { role: 'assistant', content: contentParts } as ChatCompletionAssistantMessageParam;
+                            // All assistant responses in openai_plan are from planner to executor
+                            return { 
+                                role: 'assistant', 
+                                content: [...DEFAULT_PLANNER_CONTENT, ...contentParts] 
+                            } as ChatCompletionAssistantMessageParam;
                         }
                     }
                     
