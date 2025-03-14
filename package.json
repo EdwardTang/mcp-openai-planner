@@ -1,6 +1,6 @@
 {
   "name": "@edwardtang1024/mcp-openai-planner",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "MCP server for planning with with OpenAI o1 models",
   "license": "MIT",
   "author": "edwardtang",
@@ -35,6 +35,7 @@
     "planning"
   ],
   "dependencies": {
+    "@edwardtang1024/mcp-openai-planner": "^0.1.2",
     "@modelcontextprotocol/sdk": "1.0.1",
     "dotenv": "^16.4.7",
     "openai": "4.77.0"
