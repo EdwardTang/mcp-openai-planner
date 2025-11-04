@@ -1,0 +1,49 @@
+{
+  "name": "@edwardtang1024/mcp-openai-planner",
+  "version": "0.1.2",
+  "description": "MCP server for planning with with OpenAI o1 models",
+  "license": "MIT",
+  "author": "edwardtang",
+  "homepage": "https://github.com/edwardtang1024/mcp-openai-planner",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edwardtang1024/mcp-openai-planner.git"
+  },
+  "bugs": "https://github.com/edwardtang1024/mcp-openai-planner/issues",
+  "type": "module",
+  "bin": {
+    "mcp-server-webresearch": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "pnpm run build",
+    "watch": "tsc --watch",
+    "dev": "tsx watch index.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "openai",
+    "o1",
+    "ai",
+    "planning"
+  ],
+  "dependencies": {
+    "@edwardtang1024/mcp-openai-planner": "^0.1.2",
+    "@modelcontextprotocol/sdk": "1.0.1",
+    "dotenv": "^16.4.7",
+    "openai": "4.77.0"
+  },
+  "devDependencies": {
+    "rxjs": "^6.6.7",
+    "shx": "^0.3.4",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.2"
+  }
+}
